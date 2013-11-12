@@ -1,0 +1,426 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+using System.IO;
+using System.Drawing.Printing;
+using System.Drawing.Imaging;
+
+
+namespace Human_Resources
+{
+    public partial class RegisterEmployee : Form
+    {
+        public RegisterEmployee()
+        {
+            InitializeComponent();
+            load_table();
+            FillCombo();
+
+
+        }
+
+        DataTable dbdataset;
+
+        void FillCombo()
+        {
+
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            string Query = "select * from hr.worker ;";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(Query, conDataBase);
+            MySqlDataReader myReader;
+            try
+            {
+                conDataBase.Open();
+                myReader = cmdDataBase.ExecuteReader();
+
+                while (myReader.Read())
+                {
+                    string sname = myReader.GetString("NAME_WORKER");
+
+
+
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+        void load_table()
+        {
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(" select ID_WORKER,NAME_WORKER,PASS,ACT,USERTYPE,INITIAL,FIRSTNAME,LASTNAME,DOB,STARTDATE,PIC_FILE,PHONE,EMAIL,ADDRESS,LIC_NUM,LIC_ACT,LIC_EXP,MED_NUM,MED_EXP,INITIALNAME,ID_JOB,PHONE_HOME,REG_NUM,ZEREG,ENG_LEVEL,ID_STATUS,Image from hr.worker;", conDataBase);
+
+
+            try
+            {
+                MySqlDataAdapter sda = new MySqlDataAdapter();
+                sda.SelectCommand = cmdDataBase;
+                dbdataset = new DataTable();
+                sda.Fill(dbdataset);
+                if (dbdataset.Rows.Count > 0)
+                {
+                    dbdataset.Columns["NAME_WORKER"].ColumnName = "Ажилчид";
+                }
+                BindingSource bSource = new BindingSource();
+
+
+
+                bSource.DataSource = dbdataset;
+                grdEmploy.DataSource = bSource;
+                sda.Update(dbdataset);
+
+
+
+
+                grdEmploy.Columns["Ажилчид"].Width = 100;
+                grdEmploy.Columns["ID_WORKER"].Visible = false;
+                grdEmploy.Columns["PASS"].Visible = false;
+                grdEmploy.Columns["ACT"].Visible = false;
+                grdEmploy.Columns["USERTYPE"].Visible = false;
+                grdEmploy.Columns["INITIAL"].Visible = false;
+                grdEmploy.Columns["FIRSTNAME"].Visible = false;
+                grdEmploy.Columns["LASTNAME"].Visible = false;
+                grdEmploy.Columns["DOB"].Visible = false;
+                grdEmploy.Columns["STARTDATE"].Visible = false;
+                grdEmploy.Columns["PIC_FILE"].Visible = false;
+                grdEmploy.Columns["PHONE"].Visible = false;
+                grdEmploy.Columns["EMAIL"].Visible = false;
+                grdEmploy.Columns["ADDRESS"].Visible = false;
+                grdEmploy.Columns["LIC_NUM"].Visible = false;
+                grdEmploy.Columns["LIC_ACT"].Visible = false;
+                grdEmploy.Columns["LIC_EXP"].Visible = false;
+                grdEmploy.Columns["MED_NUM"].Visible = false;
+                grdEmploy.Columns["MED_EXP"].Visible = false;
+                grdEmploy.Columns["INITIALNAME"].Visible = false;
+                grdEmploy.Columns["ID_JOB"].Visible = false;
+                grdEmploy.Columns["PHONE_HOME"].Visible = false;
+                grdEmploy.Columns["REG_NUM"].Visible = false;
+                grdEmploy.Columns["ZEREG"].Visible = false;
+                grdEmploy.Columns["ENG_LEVEL"].Visible = false;
+                grdEmploy.Columns["ID_STATUS"].Visible = false;
+                grdEmploy.Columns["Image"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            MainMenu f4 = new MainMenu();
+            f4.ShowDialog();
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "JPG Files(*.jpg)|*,jpg|PNG Files(*.png)|*.png|All Files(*.*)|*.*";
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                string picPath = dlg.FileName.ToString();
+                textBox_image_path.Text = picPath;
+                pictureBox1.ImageLocation = picPath;
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                DataView DV = new DataView(dbdataset);
+                DV.RowFilter = string.Format("Ажилчид LIKE '%{0}%'", txtSearch.Text);
+                grdEmploy.DataSource = DV;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+        {
+
+
+            MessageBox.Show("Width= " + printDocument1.DefaultPageSettings.PaperSize.Width.ToString());
+            MessageBox.Show("Height=" + printDocument1.DefaultPageSettings.PaperSize.Height.ToString());
+            string s1 = "PERSONAL TRAINING RECORD FILE";
+            string s = "Эрх бүхий ажилтнуудын хувийн хэрэг";
+            string a = "1.Surname, name(Овог, нэр)";
+            string date = "2. Date of Birth(Төрсөн өдөр.сар.он)";
+            string basic = "3.Basic education and aviation backgrounds(Үндсэн боловсрол)";
+            string pro = "4.Professional License(Мэргэжлийн үнэмлэх)";
+            string exp = "5.Experience(Ажлын туршлага)/industrial/administration";
+            string qual = "6.Qualification relevant to the license approval(Эрхийн дагуух ажлын хүрээний ангилал)";
+            string sco = "7.Scope of authorization(Эрхийн хүрээ)";
+            string type = "8.Type of training and continuation training";
+            string torol = "Сургалтын төрөл ба давтан сургалт(Сургалт хийсэн байгууллага, он сар өдөр)";
+            string contact = "9.Contact phone,email address(Харилцах утас, э-шуудангийн хаяг)";
+            string phone = "Гар утас:";
+            string home = "Гэрийн утас:";
+            string email = "Э-шуудангийн хаяг:";
+
+            Font f = new System.Drawing.Font("Arial", 12, FontStyle.Bold);
+            e.Graphics.DrawString(s1, f, Brushes.Black, 250, 10);
+            e.Graphics.DrawString(s, f, Brushes.Black, 240, 28);
+            e.Graphics.DrawString(a, f, Brushes.Black, 30, 80);
+            e.Graphics.DrawString(date, f, Brushes.Black, 30, 140);
+            e.Graphics.DrawString(basic, f, Brushes.Black, 30, 200);
+            e.Graphics.DrawString(pro, f, Brushes.Black, 30, 400);
+            e.Graphics.DrawString(exp, f, Brushes.Black, 30, 460);
+            e.Graphics.DrawString(qual, f, Brushes.Black, 30, 760);
+            e.Graphics.DrawString(sco, f, Brushes.Black, 30, 820);
+            e.Graphics.DrawString(type, f, Brushes.Black, 30, 880);
+            e.Graphics.DrawString(torol, f, Brushes.Black, 40, 898);
+            e.Graphics.DrawString(contact, f, Brushes.Black, 30, 968);
+            e.Graphics.DrawString(phone, f, Brushes.Black, 40, 1028);
+            e.Graphics.DrawString(home, f, Brushes.Black, 500, 1028);
+            e.Graphics.DrawString(email, f, Brushes.Black, 40, 1058);
+            //e.Graphics.DrawRectangle(Pens.Black, 30,30,767,1109);
+
+        }
+
+        private void grdEmploy_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = this.grdEmploy.Rows[e.RowIndex];
+                id_txt.Text = row.Cells["ID_WORKER"].Value.ToString();
+                user_txt.Text = row.Cells["Ажилчид"].Value.ToString();
+                pass_txt.Text = row.Cells["PASS"].Value.ToString();
+                act_txt.Text = row.Cells["ACT"].Value.ToString();
+                usertype_txt.Text = row.Cells["USERTYPE"].Value.ToString();
+                initial_txt.Text = row.Cells["INITIAL"].Value.ToString();
+                name_txt.Text = row.Cells["FIRSTNAME"].Value.ToString();
+                ovog_txt.Text = row.Cells["LASTNAME"].Value.ToString();
+                dateTimePicker2.Text = row.Cells["DOB"].Value.ToString();
+                dateTimePicker1.Text = row.Cells["STARTDATE"].Value.ToString();
+                textBox_image_path.Text = row.Cells["PIC_FILE"].Value.ToString();
+                phone_txt.Text = row.Cells["PHONE"].Value.ToString();
+                email_txt.Text = row.Cells["EMAIL"].Value.ToString();
+                address_txt.Text = row.Cells["ADDRESS"].Value.ToString();
+                lic_num_txt.Text = row.Cells["LIC_NUM"].Value.ToString();
+                lic_act_txt.Text = row.Cells["LIC_ACT"].Value.ToString();
+                dateTimePicker3.Text = row.Cells["LIC_EXP"].Value.ToString();
+                med_num_txt.Text = row.Cells["MED_NUM"].Value.ToString();
+                dateTimePicker4.Text = row.Cells["MED_EXP"].Value.ToString();
+                initialname_txt.Text = row.Cells["INITIALNAME"].Value.ToString();
+                job_txt.Text = row.Cells["ID_JOB"].Value.ToString();
+                homephone_txt.Text = row.Cells["PHONE_HOME"].Value.ToString();
+                reg_txt.Text = row.Cells["REG_NUM"].Value.ToString();
+                zereg_txt.Text = row.Cells["ZEREG"].Value.ToString();
+                english_txt.Text = row.Cells["ENG_LEVEL"].Value.ToString();
+                status_txt.Text = row.Cells["ID_STATUS"].Value.ToString();
+
+            }
+            initEmployers();
+            load_table();
+
+        }
+
+        #region [Methods]
+        void initEmployers()
+        {
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand("select  ID_WORKER, NAME_WORKER from hr.worker;", conDataBase);
+
+            try
+            {
+                MySqlDataAdapter sda = new MySqlDataAdapter();
+                sda.SelectCommand = cmdDataBase;
+                dbdataset = new DataTable();
+                sda.Fill(dbdataset);
+                if (dbdataset.Rows.Count > 0)
+                {
+                    dbdataset.Columns["NAME_WORKER"].ColumnName = "Ажилчдын нэр";
+                }
+                BindingSource bSource = new BindingSource();
+
+                bSource.DataSource = dbdataset;
+                grdEmploy.DataSource = bSource;
+                grdEmploy.Columns["ID_WORKER"].Visible = false;
+                sda.Update(dbdataset);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        void initbttnSave()
+        {
+            byte[] imageBt = null;
+            FileStream fstream = new FileStream(this.textBox_image_path.Text, FileMode.Open, FileAccess.Read);
+            BinaryReader br = new BinaryReader(fstream);
+            imageBt = br.ReadBytes((int)fstream.Length);
+
+
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            string Query = "insert into hr.worker(ID_WORKER,NAME_WORKER,PASS,ACT,USERTYPE,INITIAL,FIRSTNAME,LASTNAME,DOB,STARTDATE,PIC_FILE,PHONE,EMAIL,ADDRESS,LIC_NUM,LIC_ACT,LIC_EXP,MED_NUM,MED_EXP,INITIALNAME,ID_JOB,PHONE_HOME,REG_NUM,ZEREG,ENG_LEVEL,ID_STATUS,Image)  values ('" + this.id_txt.Text + "','" + this.user_txt.Text + "','" + this.pass_txt.Text + "','" + this.act_txt.Text + "','" + this.usertype_txt.Text + "','" + this.initial_txt.Text + "','" + this.name_txt.Text + "','" + this.ovog_txt.Text + "','" + this.dateTimePicker2.Text + "','" + this.dateTimePicker1.Text + "','" + this.textBox_image_path.Text + "','" + this.phone_txt.Text + "','" + this.email_txt.Text + "','" + this.address_txt.Text + "','" + this.lic_num_txt.Text + "','" + this.lic_act_txt.Text + "','" + this.dateTimePicker3.Text + "','" + this.med_num_txt.Text + "','" + this.dateTimePicker4.Text + "','" + this.initialname_txt.Text + "','" + this.job_txt.Text + "','" + this.homephone_txt.Text + "','" + this.reg_txt.Text + "','" + this.zereg_txt.Text + "','" + this.english_txt.Text + "','" + this.status_txt.Text + "',@IMG)  ;";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(Query, conDataBase);
+            MySqlDataReader myReader;
+            try
+            {
+                conDataBase.Open();
+                cmdDataBase.Parameters.Add(new MySqlParameter("@IMG", imageBt));
+
+
+
+                myReader = cmdDataBase.ExecuteReader();
+                MessageBox.Show("Мэдээлэл Хадгалагдлаа");
+                while (myReader.Read())
+                {
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+
+
+
+            }
+        }
+        void bttnDelete()
+        {
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            string Query = "delete from hr.worker where ID_WORKER='" + this.id_txt.Text + "';";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(Query, conDataBase);
+            MySqlDataReader myReader;
+            try
+            {
+                conDataBase.Open();
+                myReader = cmdDataBase.ExecuteReader();
+                MessageBox.Show("Устгагдлаа");
+                while (myReader.Read())
+                {
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+
+
+            }
+        }
+        void btnUpdate()
+        {
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            string Query = "update hr.worker set ID_WORKER='" + this.id_txt.Text + "',NAME_WORKER='" + this.user_txt.Text + "', PASS='" + this.pass_txt.Text + "', ACT='" + this.act_txt.Text + "', USERTYPE='" + this.usertype_txt.Text + "', INITIAL='" + this.initial_txt.Text + "',FIRSTNAME='" + this.name_txt.Text + "',LASTNAME='" + this.ovog_txt.Text + "',DOB='" + this.dateTimePicker2.Text + "', PIC_FILE='" + this.textBox_image_path.Text + "',STARTDATE='" + this.dateTimePicker1.Text + "', PHONE='" + this.phone_txt.Text + "', EMAIL='" + this.email_txt.Text + "', ADDRESS='" + this.address_txt.Text + "', LIC_NUM='" + this.lic_num_txt.Text + "', LIC_ACT='" + this.lic_act_txt.Text + "', LIC_EXP='" + this.dateTimePicker3.Text + "', MED_NUM='" + this.med_num_txt.Text + "', MED_EXP='" + this.dateTimePicker4.Text + "', INITIALNAME='" + this.initialname_txt.Text + "', ID_JOB='" + this.job_txt.Text + "', PHONE_HOME='" + this.homephone_txt.Text + "',REG_NUM='" + this.reg_txt.Text + "', ZEREG='" + this.zereg_txt.Text + "', ENG_LEVEL='" + this.english_txt.Text + "',ID_STATUS='" + this.status_txt.Text + "' ,Image='" + this.pictureBox1.Image + "' where ID_WORKER='" + this.id_txt.Text + "'  ;";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(Query, conDataBase);
+            MySqlDataReader myReader;
+            try
+            {
+                conDataBase.Open();
+                myReader = cmdDataBase.ExecuteReader();
+                MessageBox.Show("Засварлагдлаа");
+                while (myReader.Read())
+                {
+
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+
+
+            }
+        }
+        void addButton()
+        {
+            byte[] imageBt = null;
+            FileStream fstream = new FileStream(this.textBox_image_path.Text, FileMode.Open, FileAccess.Read);
+            BinaryReader br = new BinaryReader(fstream);
+            imageBt = br.ReadBytes((int)fstream.Length);
+
+            string constring = "datasource=localhost;port=3306;username=root;password=root";
+            string Query = "insert into hr.worker(ID_TRAIN,NAME_TRAIN,,ACT,USERTYPE,INITIAL,FIRSTNAME,LASTNAME,DOB,STARTDATE,PIC_FILE,PHONE,EMAIL,ADDRESS,LIC_NUM,LIC_ACT,LIC_EXP,MED_NUM,MED_EXP,INITIALNAME,ID_JOB,PHONE_HOME,REG_NUM,ZEREG,ENG_LEVEL,ID_STATUS,Image)  values ('" + this.id_txt.Text + "','" + this.user_txt.Text + "','" + this.pass_txt.Text + "','" + this.act_txt.Text + "','" + this.usertype_txt.Text + "','" + this.initial_txt.Text + "','" + this.name_txt.Text + "','" + this.ovog_txt.Text + "','" + this.dateTimePicker2.Text + "','" + this.dateTimePicker1.Text + "','" + this.textBox_image_path.Text + "','" + this.phone_txt.Text + "','" + this.email_txt.Text + "','" + this.address_txt.Text + "','" + this.lic_num_txt.Text + "','" + this.lic_act_txt.Text + "','" + this.dateTimePicker3.Text + "','" + this.med_num_txt.Text + "','" + this.dateTimePicker4.Text + "','" + this.initialname_txt.Text + "','" + this.job_txt.Text + "','" + this.homephone_txt.Text + "','" + this.reg_txt.Text + "','" + this.zereg_txt.Text + "','" + this.english_txt.Text + "','" + this.status_txt.Text + "',@IMG)  ;";
+            MySqlConnection conDataBase = new MySqlConnection(constring);
+            MySqlCommand cmdDataBase = new MySqlCommand(Query, conDataBase);
+            MySqlDataReader myReader;
+            try
+            {
+                conDataBase.Open();
+                cmdDataBase.Parameters.Add(new MySqlParameter("@IMG", imageBt));
+
+
+
+                myReader = cmdDataBase.ExecuteReader();
+                MessageBox.Show("Мэдээлэл Хадгалагдлаа");
+                while (myReader.Read())
+                {
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+
+
+
+            }
+        }
+
+
+        #endregion
+
+        private void bttnSave_Click(object sender, EventArgs e)
+        {
+            initbttnSave();
+            load_table();
+        }
+
+        private void bttnUpd_Click(object sender, EventArgs e)
+        {
+            btnUpdate();
+        }
+
+        private void bttnDel_Click(object sender, EventArgs e)
+        {
+            bttnDelete();
+        }
+
+
+
+
+
+
+    }
+}
